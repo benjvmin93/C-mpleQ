@@ -69,20 +69,19 @@ struct Matrix *matrix_mul(struct Matrix *m1, struct Matrix *m2)
         err(1, "matrix_mul: m1->cols != m2->rows");
     }
 
-    struct Matrix *result = init_matrix(*m1->rows, *m2->cols);
+    struct Matrix *result = init_matrix(*m2->cols, *m1->rows);
 
     for (size_t i = 0; i < *m1->rows; ++i)
     {
-        struct Complex **m1_row = m1->matrix[i];
-        struct Complex **res_row = result->matrix[i];
         for (size_t j = 0; j < *m2->cols; ++j)
         {
             for (size_t k = 0; k < *m1->cols; ++k)
             {
-                struct Complex **m2_row = m2->matrix[k];
-
-                struct Complex *mul = complex_mul(m1_row[k], m2_row[j]);
-                res_row[j] = complex_add(res_row[j], mul);
+                struct Complex *mul = complex_mul(m1->matrix[i][j], m2->matrix[k][j]);
+                struct Complex *res = complex_add(result->matrix[i][j], mul);
+                free_complex(mul);
+                free_complex(result->matrix[i][j]);
+                result->matrix[i][j] = res;
             }
         }
     }
@@ -99,12 +98,13 @@ bool matrix_equal(struct Matrix *m1, struct Matrix *m2)
 
     for (size_t i = 0; i < *m1->rows; ++i)
     {
-        struct Complex **m1_row = m1->matrix[i];
-        struct Complex **m2_row = m2->matrix[i];
         for (size_t j = 0; j < *m1->cols; ++j)
         {
-            if (m1_row[j] != m2_row[j])
+            bool equal = complex_equal(m1->matrix[i][j], m2->matrix[i][j], 0);
+            if (!equal)
+            {
                 return false;
+            }
         }
     }
     return true;
@@ -112,22 +112,24 @@ bool matrix_equal(struct Matrix *m1, struct Matrix *m2)
 
 void print_matrix(struct Matrix *matrix)
 {
+    printf("[");
     for (size_t i = 0; i < *matrix->rows; ++i)
     {
-        struct Complex **row = matrix->matrix[i];
+        if (i > 0)
+            printf(" ");
+        printf("[ ");
         for (size_t j = 0; j < *matrix->cols; ++j)
         {
-            struct Complex *c = row[j];
-            print_complex(c);
+            print_complex(matrix->matrix[i][j]);
             if (j == *matrix->cols - 1)
-            {
-                printf("\n");
-            }
+                printf(" ]");
             else
-            {
-                printf(" | ");
-            }
+                printf(", ");
         }
+        if (i == *matrix->rows - 1)
+            printf("]\n");
+        else
+            printf("\n");
     }
 }
 

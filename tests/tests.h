@@ -1,7 +1,8 @@
 #ifndef TESTS_H
 #define TESTS_H
 
-void test_complex(void);
-void test_matrix(void);
+#include <stdbool.h>
 
+void run_tests_complex(void);
+void run_tests_matrix(void);
 #endif

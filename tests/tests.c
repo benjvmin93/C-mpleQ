@@ -4,7 +4,7 @@
 
 int main(void)
 {
-    test_complex();
-    test_matrix();
+    run_tests_complex();
+    run_tests_matrix();
     return 0;
 }

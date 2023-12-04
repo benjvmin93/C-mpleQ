@@ -5,9 +5,9 @@
 #include "../utils/complex.h"
 #include "tests.h"
 
-#define NB_TESTS 25
+#define NB_TESTS_COMPLEX 25
 
-long double TEST_VALUES[NB_TESTS][4] = {
+long double TEST_VALUES[NB_TESTS_COMPLEX][4] = {
     { 2.79, -9.5, -4.5, -5.54 },
     { 4.73, 3.53, 7.84, -8.26 },
     { -1.56, -9.4, -5.63, 0.11 },
@@ -35,7 +35,7 @@ long double TEST_VALUES[NB_TESTS][4] = {
     { 9.92, 0.58, 9.42, 7.22 }
 };
 
-long double EXPECTED_RESULTS[NB_TESTS][2] = {
+long double EXPECTED_RESULTS[NB_TESTS_COMPLEX][2] = {
     { -1.71, -15.04 },
     { 12.57, -4.73},
     { -7.19, -9.29 },
@@ -63,12 +63,14 @@ long double EXPECTED_RESULTS[NB_TESTS][2] = {
     { 19.34, 7.8 }
 };
 
-void test_complex(void)
+void run_tests_complex(void)
 {
+    printf("========== TESTS COMPLEX ==========\n");
     size_t success = 0;
 
-    for (size_t i = 0; i < NB_TESTS; ++i)
+    for (size_t i = 0; i < NB_TESTS_COMPLEX; ++i)
     {
+        printf("Test %ld: ", i);
         double a = TEST_VALUES[i][0];
         double b = TEST_VALUES[i][1];
         double c = TEST_VALUES[i][2];
@@ -85,15 +87,13 @@ void test_complex(void)
 
         if (!test_passed)
         {
-            printf("res_a = %f\n", *result->a);
-            printf("res_b = %f\n", *result->b);
-            printf("exp_a = %f\n", *expected->a);
-            printf("exp_b = %f\n", *expected->b);
+            printf("FAILED\n");
             print_complex(result);
             print_complex(expected);
         }
         else
         {
+            printf("PASSED\n");
             success++;
         }
         free_complex(z1);
@@ -102,5 +102,5 @@ void test_complex(void)
         free_complex(result);
 }
 
-    printf("Tests passed = %f%%\n", (success / (double)NB_TESTS) * 100);
+    printf("Complex tests passed = %f%%\n", (success / (double)NB_TESTS_COMPLEX) * 100);
 }
