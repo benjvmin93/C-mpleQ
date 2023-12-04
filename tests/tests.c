@@ -5,5 +5,6 @@
 int main(void)
 {
     test_complex();
+    test_matrix();
     return 0;
 }

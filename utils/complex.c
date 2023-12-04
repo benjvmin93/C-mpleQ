@@ -88,5 +88,5 @@ bool complex_equal(struct Complex *z1, struct Complex *z2, double threshold)
 
 void print_complex(struct Complex *z)
 {
-    printf("%f + i%f\n", *z->a, *z->b);
+    printf("%f + i%f", *z->a, *z->b);
 }
