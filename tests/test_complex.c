@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <math.h>
@@ -8,8 +7,6 @@
 
 #define NB_TESTS 25
 
-/*               {-3.691, -4.645, -5.78, 8.858}, {7.527, -3.706, 3.109, -2.087}, {8.291, -0.823, -4.702, -5.067}, {1.227, -4.745, 1.692, 7.956}, {-2.012, -5.614, 9.951, 0.191}, {-8.182, -9.058, -7.807, 2.549}, {5.842, -1.557, -8.729, -2.368}, {9.922, 0.582, 9.422, 7.216}};
-*/
 long double TEST_VALUES[NB_TESTS][4] = {
     { 2.79, -9.5, -4.5, -5.54 },
     { 4.73, 3.53, 7.84, -8.26 },
@@ -81,13 +78,10 @@ void test_complex(void)
 
         struct Complex *z1 = init_complex(a, b);
         struct Complex *z2 = init_complex(c, d);
+
         struct Complex *expected = init_complex(expected_a, expected_b);
         struct Complex *result = complex_add(z1, z2);
-
-        double dif_a = fabs(*result->a - *expected->a);
-        double dif_b = fabs(*result->b - *expected->b);
-
-        bool test_passed = dif_a < 1e-2 && dif_b < 1e-2;
+        bool test_passed = complex_equal(expected, result, 0.01);
 
         if (!test_passed)
         {
@@ -108,5 +102,5 @@ void test_complex(void)
         free_complex(result);
 }
 
-    printf("Tests passed = %ld%%\n", (success / NB_TESTS) * 100);
+    printf("Tests passed = %f%%\n", (success / (double)NB_TESTS) * 100);
 }

@@ -62,6 +62,30 @@ struct Complex *complex_div(struct Complex *z1, struct Complex *z2)
     return init_complex(e, f);
 }
 
+bool complex_equal(struct Complex *z1, struct Complex *z2, double threshold)
+{
+    double diff_a = *z1->a - *z2->a;
+    double diff_b = *z1->b - *z2->b;
+
+    if (diff_a < 0)
+    {
+        diff_a *= -1;
+    }
+    if (diff_b < 0)
+    {
+        diff_b *= -1;
+    }
+
+    if (threshold != 0.0)
+    {
+        return diff_a <= threshold && diff_b <= threshold;
+    }
+    else
+    {
+        return diff_a == 0.0 && diff_b == 0.0;
+    }
+}
+
 void print_complex(struct Complex *z)
 {
     printf("%f + i%f\n", *z->a, *z->b);
