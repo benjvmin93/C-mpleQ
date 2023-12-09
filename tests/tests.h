@@ -5,6 +5,6 @@
 
 void run_tests_complex(void);
 void run_tests_matrix(void);
-void test_list_add();
+void run_tests_lists(void);
 
 #endif

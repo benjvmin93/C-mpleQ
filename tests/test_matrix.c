@@ -249,7 +249,7 @@ bool test_matrix_8(void)
     return b;
 }
 
-bool (*test_functions[])(void) = {
+bool (*matrix_test_functions[])(void) = {
     test_matrix_1,
     test_matrix_2,
     test_matrix_3,
@@ -267,7 +267,7 @@ void run_tests_matrix(void)
     for (size_t i = 0; i < NB_TESTS_MATRIX; ++i)
     {
         printf("Test %ld: ", i + 1);
-        bool res = (*test_functions[i])();
+        bool res = (*matrix_test_functions[i])();
         success += res == true ? 1 : 0;
         if (res)
             printf("PASSED\n");

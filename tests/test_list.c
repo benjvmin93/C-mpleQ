@@ -6,6 +6,8 @@
 #include "../utils/alloc.h"
 #include "../utils/list.h"
 
+#define NB_TESTS_LISTS 1
+
 bool int_equal_func(void *a, void *b)
 {
     return *(int*)a == *(int*)b;
@@ -21,7 +23,7 @@ void free_int(void *a)
     free(a);
 }
 
-void test_list_add()
+bool test_list_add(void)
 {
     int *a = xmalloc(sizeof(int));
     int *b = xmalloc(sizeof(int));
@@ -33,27 +35,41 @@ void test_list_add()
     *d = 4;
 
     
-    print_int(a);
     struct List *list = init_list(sizeof(int));
     list = list_add(list, a);
-    printf("caca%d", *(int*)list->data);
     list = list_add(list, b);
     list = list_add(list, c);
     list = list_add(list, d);
-    list_print(list, print_int);
 
     struct List *l1 = list_find(list, a, int_equal_func);
-    list_print(l1, print_int);
     struct List *l2 = list_find(list, b, int_equal_func);
-    list_print(l2, print_int);
-    struct List *l3 = list_find(list, a, int_equal_func);
-    list_print(l3, print_int);
-    struct List *l4 = list_find(list, a, int_equal_func);
-    list_print(l4, print_int);
+    struct List *l3 = list_find(list, c, int_equal_func);
+    struct List *l4 = list_find(list, d, int_equal_func);
     
+    bool res = ((*(int*)l1->data == *a) && (*(int*)l2->data == *b) && (*(int*)l3->data == *c) && (*(int*)l4->data == *d));
     list_free(list, free_int);
-    /*assert(*(int*)l1->data == *a);
-    assert(*(int*)l2->data == *b);
-    assert(*(int*)l3->data == *c);
-    assert(*(int*)l4->data == *d);*/
+
+    return res;
+}
+
+bool (*lists_test_functions[])(void) = {
+    test_list_add,
+};
+
+void run_tests_lists(void)
+{
+    printf("========== TESTS LIST ==========\n");
+    float success = 0;
+    for (size_t i = 0; i < NB_TESTS_LISTS; ++i)
+    {
+        printf("Test %ld: ", i + 1);
+        bool res = (*lists_test_functions[i])();
+        success += res == true ? 1 : 0;
+        if (res)
+            printf("PASSED\n");
+        else
+            printf("FAILED\n");
+    }
+
+    printf("List tests passed = %f%%\n", success / (float)NB_TESTS_LISTS * 100);
 }

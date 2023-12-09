@@ -33,6 +33,7 @@ void list_print(struct List *l, void (*print_fun)(void *))
         print_fun(l->data);
         l = l->next;
     }
+    printf("\n");
 }
 
 struct List *list_find(struct List *l, void *data, bool (*equal_fun)(void *, void *))
@@ -103,13 +104,11 @@ struct List *list_remove_if(struct List *l, int (*predicate)(void *), bool (*equ
 
 void list_free(struct List *l, void (*free_fun)(void *))
 {
-    if (!l)
-        return;
-    while (l->next)
+    while (l)
     {
-        struct List *tmp2 = l;
+        struct List *tmp = l;
+        free_fun(l->data);
         l = l->next;
-        free_fun(tmp2);
+        free(tmp);
     }
-    free(l);
 }
