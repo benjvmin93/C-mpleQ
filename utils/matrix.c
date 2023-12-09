@@ -24,6 +24,7 @@ struct Matrix *init_matrix(size_t cols, size_t rows)
     }
     return matrix;
 }
+
 void free_matrix(struct Matrix *matrix)
 {
     for (size_t i = 0; i < *matrix->rows; ++i)
@@ -43,6 +44,19 @@ void free_matrix(struct Matrix *matrix)
     free(matrix->rows);
     free(matrix->matrix);
     free(matrix);
+}
+
+struct Matrix *matrix_set_complex(struct Matrix *m, double a, double b, size_t col, size_t row)
+{
+    if (col > *(m->cols) - 1 || row > *(m->rows) - 1)
+    {
+        err(1, "Invalid matrix range");
+    }
+    
+    *m->matrix[row][col]->a = a;
+    *m->matrix[row][col]->b = b;
+    return m;
+
 }
 
 struct Matrix *matrix_add(struct Matrix *m1, struct Matrix *m2)
@@ -133,7 +147,7 @@ void print_matrix(struct Matrix *matrix)
     }
 }
 
-struct Matrix *kron(struct Matrix *m1, struct Matrix *m2) {
+struct Matrix *matrix_kron(struct Matrix *m1, struct Matrix *m2) {
     size_t rows = *(m1->rows) * *(m2->rows);
     size_t cols = *(m1->cols) * *(m2->cols);
 
@@ -156,4 +170,18 @@ struct Matrix *kron(struct Matrix *m1, struct Matrix *m2) {
     }
 
     return result;
+}
+
+struct Matrix *matrix_transpose(struct Matrix *m)
+{
+    struct Matrix *transposed = init_matrix(*m->rows, *m->cols);
+    for (size_t i = 0; i < *m->cols; ++i)
+    {
+        for (size_t j = 0; j < *m->rows; ++j)
+        {
+            *transposed->matrix[i][j]->a = *m->matrix[j][i]->a;
+            *transposed->matrix[i][j]->b = *m->matrix[j][i]->b;
+        }
+    }
+    return transposed;
 }

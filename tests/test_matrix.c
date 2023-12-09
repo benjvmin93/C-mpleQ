@@ -5,7 +5,7 @@
 #include "../utils/complex.h"
 #include "tests.h"
 
-#define NB_TESTS_MATRIX 7
+#define NB_TESTS_MATRIX 8
 
 /*
     [[1],   [[1],  [[2],        
@@ -143,7 +143,7 @@ bool test_matrix_5(void)
     struct Matrix *expected = init_matrix(1, 4);
     *expected->matrix[0][0]->a = 1;
 
-    struct Matrix *res = kron(m1, m2);
+    struct Matrix *res = matrix_kron(m1, m2);
 
     bool b = matrix_equal(res, expected);
     free_matrix(m1);
@@ -171,7 +171,7 @@ bool test_matrix_6(void)
     struct Matrix *expected = init_matrix(1, 4);
     *expected->matrix[3][0]->a = 1;
 
-    struct Matrix *res = kron(m1, m2);
+    struct Matrix *res = matrix_kron(m1, m2);
 
     bool b = matrix_equal(res, expected);
     free_matrix(m1);
@@ -203,13 +203,49 @@ bool test_matrix_7(void)
     *expected->matrix[2][2]->a = 1;
     *expected->matrix[3][3]->a = 1;
 
-    struct Matrix *res = kron(m1, m2);
+    struct Matrix *res = matrix_kron(m1, m2);
 
     bool b = matrix_equal(res, expected);
     free_matrix(m1);
     free_matrix(m2);
     free_matrix(res);
     free_matrix(expected);
+    return b;
+}
+
+/*
+              T     
+   [[1, 2, 3]       [[1, 4],
+    [4, 5, 6]]  =    [2, 5],
+                     [3, 6]]    
+*/
+bool test_matrix_8(void)
+{
+    struct Matrix *m = init_matrix(3, 2);
+    double k = 1;
+    for (size_t i = 0; i < *m->rows; ++i)
+    {
+        for (size_t j = 0; j < *m->cols; ++j)
+        {
+            matrix_set_complex(m, k++, 0, j, i);
+        }
+    }
+
+    struct Matrix *transposed = matrix_transpose(m);
+    bool b = true;
+    for (size_t i = 0; i < *transposed->rows; ++i)
+    {
+        for (size_t j = 0; j < *transposed->cols; ++j)
+        {
+            b = complex_equal(transposed->matrix[i][j], m->matrix[j][i], 0);
+            if (b == false)
+                break;
+        }
+        if (b == false)
+            break;
+    }
+    free_matrix(transposed);
+    free_matrix(m);
     return b;
 }
 
@@ -220,7 +256,8 @@ bool (*test_functions[])(void) = {
     test_matrix_4,
     test_matrix_5,
     test_matrix_6,
-    test_matrix_7
+    test_matrix_7,
+    test_matrix_8
 };
 
 void run_tests_matrix(void)
@@ -236,7 +273,6 @@ void run_tests_matrix(void)
             printf("PASSED\n");
         else
             printf("FAILED\n");
-        
     }
 
     printf("Matrix tests passed = %f%%\n", success / (float)NB_TESTS_MATRIX * 100);
