@@ -171,3 +171,16 @@ void list_free(struct List *l, void (*free_fun)(void *))
         free(tmp);
     }
 }
+
+struct List *list_append(struct List *l, void *data)
+{
+    struct List *new = init_list(l->data_size);
+    new->data = data;
+    struct List *head = l;
+    while (l->next)
+    {
+        l = l->next;
+    }
+    l->next = new;
+    return head;
+}

@@ -20,5 +20,6 @@ struct List *list_find(struct List *l, void *data, bool (*equal_fun)(void *, voi
 struct List *list_remove(struct List *l, void *data, bool (*equal_fun)(void *, void *), void (*free_fun)(void *));
 struct List *list_remove_if(struct List *l, int (*predicate)(void *), bool (*equal_fun)(void *, void *), void (*free_fun)(void *));
 void list_free(struct List *l, void (*free_fun)(void *));
+struct List *list_append(struct List *l, void *data);
 
 #endif
