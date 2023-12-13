@@ -3,29 +3,19 @@
 #include "gates.h"
 #include "../utils/alloc.h"
 
-struct Gate *init_gate(enum Gates gate_id, bool is_controlled, size_t *control, size_t *target)
+struct Gate *init_gate(enum Gates gate_id, struct List *controls, struct List *targets)
 {
     struct Gate *gate = xmalloc(sizeof(struct Gate));
     gate->gate_id = gate_id;
-    gate->is_controlled = is_controlled;
-    gate->target = xmalloc(sizeof(size_t));
-    *gate->target = target;
-
-    gate->control = NULL;
-    if (gate->is_controlled)
-    {
-        gate->control = xmalloc(sizeof(size_t));
-        *gate->control = control;
-    }
+    gate->targets = targets;
+    gate->controls = controls;
     return gate;
-
 }
 
 void free_gate(struct Gate *gate)
 {
-    if (gate->is_controlled)
-        free(gate->control);
-    free(gate->target);
+    list_free(gate->targets);
+    list_free(gate->controls);
     free(gate);
 }
 

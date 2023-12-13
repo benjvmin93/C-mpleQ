@@ -2,24 +2,25 @@
 #define GATES_H
 
 #include "../utils/matrix.h"
+#include "../utils/list.h"
 
 enum Gates
 {
   H = 0,
   X,
   Y,
-  Z  
+  Z,
+  M
 };
 
 struct Gate
 {
     enum Gates gate_id;
-    bool is_controlled;
-    size_t *control;
-    size_t *target;
+    struct List *controls;
+    struct List *targets;
 };
 
-struct Gate *init_gate(enum Gates gate_id, bool is_controlled, size_t *control, size_t *target);
+struct Gate *init_gate(enum Gates gate_id, struct List *controls, struct List *targets);
 void free_gate(struct Gate *gate);
 
 struct Matrix *get_H(void);
