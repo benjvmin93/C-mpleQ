@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <err.h>
 
 #include "alloc.h"
 #include "list.h"
@@ -12,13 +13,65 @@ struct List *init_list(size_t data_size)
     return l;
 }
 
-struct List *list_add(struct List *l, void *data)
+struct List *list_at(struct List *l, size_t index)
 {
+    size_t length = list_length(l);
+    if (index > length)
+        err(1, "Invalid index range");
+    
+    struct List *tmp = l;
+    while (tmp && index-- > 0)
+    {
+        tmp = tmp->next;
+    }
+
+    return tmp;
+}
+
+struct List *list_insert(struct List *l, void *data, size_t index)
+{   
+    size_t len = list_length(l);
+    if (index > len)
+    {
+        err(1, "Index out of list length bounds");
+    }
+    if (len == 1 && index == 0 && l->data == NULL)
+    {
+        l->data = data;
+        return l;
+    }
     struct List *new = init_list(l->data_size);
     new->data = data;
-    new->next = l;
 
-    return new;
+    if (index == 0)
+    {
+        new->next = l;
+        return new;
+    }
+
+    struct List *current = l;
+    size_t i = 0;
+    while (current != NULL && i < index - 1)
+    {
+        current = current->next;
+        i++;
+    }
+    new->next = current->next;
+    current->next = new;
+
+    return l;
+}
+
+size_t list_length(struct List *l)
+{
+    size_t length = 0;
+    struct List *tmp = l;
+    while (tmp)
+    {
+        length++;
+        tmp = tmp->next;
+    }
+    return length;
 }
 
 void list_print(struct List *l, void (*print_fun)(void *))
@@ -28,7 +81,7 @@ void list_print(struct List *l, void (*print_fun)(void *))
         printf("\n");
         return;
     }
-    while (l->next)
+    while (l)
     {
         print_fun(l->data);
         l = l->next;
@@ -54,30 +107,36 @@ struct List *list_find(struct List *l, void *data, bool (*equal_fun)(void *, voi
 
 struct List *list_remove(struct List *l, void *data, bool (*equal_fun)(void *, void *), void (*free_fun)(void *))
 {
+    // To remove an element, we need the pointer before and after the one holding the data.
     if (!l)
         return NULL;
 
     struct List *head = l;
 
-    if (equal_fun(l->data, data))
+    // Check if the head is holding the data
+    if (equal_fun(head->data, data))
     {
-        l = l->next;
+        l = head->next;
+        head->next = NULL;
         list_free(head, free_fun);
         return l;
     }
 
+    // Otherwise, iterate until we reach end of list or find the data
     while (l->next && !equal_fun(l->next->data, data))
         l = l->next;
 
+    // The data is not in the list.
     if (!l->next)
     {
-        if (equal_fun(l->data, data))
-            list_free(l, free_fun);
         return head;
     }
 
+    // Get the element to remove which is the next element.
     struct List *tmp = l->next;
-    l->next = l->next->next;
+    // Connect new next element to the next of the element to remove.
+    l->next = tmp->next;
+    // Free element to remove.
     list_free(tmp, free_fun);
 
     return head;
