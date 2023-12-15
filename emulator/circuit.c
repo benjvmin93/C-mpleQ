@@ -25,3 +25,10 @@ struct Circuit *circuit_add_gate(struct Circuit *circuit, enum Gates gate, struc
     circuit->gates = list_append(circuit->gates, new_gate);
     return circuit;
 }
+
+struct Circuit *circuit_measure(struct Circuit *circuit, struct List *targets)
+{
+    struct Gate *new_gate = init_gate(M, init_list(sizeof(0)), targets);
+    circuit->gates = list_append(circuit->gates, new_gate);
+    return circuit;
+}
