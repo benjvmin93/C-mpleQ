@@ -1,8 +1,8 @@
 CC = gcc
 
 CFLAGS=-std=c99 -Wextra -Wall
-FILES = main.c utils/*.c
-TEST = utils/*c tests/*.c
+FILES = main.c utils/*.c emulator/*.c
+TEST = utils/*c tests/*.c emulator/*.c
 LIBS=-lm
 
 all:

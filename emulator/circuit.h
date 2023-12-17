@@ -13,7 +13,7 @@ struct Circuit {
 
 struct Circuit *init_circuit(size_t nb_qubits);
 void free_circuit(struct Circuit *circuit);
-struct Circuit *circuit_add_gate(struct Circuit *circuit, enum Gates gate, struct List *controls, struct List *targets);
+struct Circuit *circuit_add_gate(struct Circuit *circuit, int gate, double rotation, struct List *controls, struct List *targets);
 struct Circuit *circuit_measure(struct Circuit *circuit, struct List *targets);
 
 #endif

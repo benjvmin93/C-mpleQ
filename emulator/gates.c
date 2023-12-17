@@ -3,73 +3,72 @@
 #include "gates.h"
 #include "../utils/alloc.h"
 
-struct Gate *init_gate(enum Gates gate_id, struct List *controls, struct List *targets)
+struct Gate *init_gate(enum Gates gate_id, double rotation, struct List *controls, struct List *targets)
 {
     struct Gate *gate = xmalloc(sizeof(struct Gate));
-    gate->gate_id = gate_id;
-    gate->targets = targets;
+    gate->m_gate = get_gate_matrix(gate_id, rotation);
     gate->controls = controls;
+    gate->targets = targets;
     return gate;
 }
 
 void free_gate(struct Gate *gate)
 {
-    list_free(gate->targets);
-    list_free(gate->controls);
+    free_matrix(gate->m_gate);
+    list_free(gate->targets, free);
+    list_free(gate->controls, free);
     free(gate);
 }
 
-struct Matrix *get_H(void)
+struct Matrix *get_Rx(double rotation)
 {
-    struct Matrix *H = init_matrix(2, 2);
-    double coef = 1 / sqrt(2);
-    H = matrix_set_complex(H, coef, 0, 0, 0);
-    H = matrix_set_complex(H, coef, 0, 0, 1);
-    H = matrix_set_complex(H, coef, 0, 1, 0);
-    H = matrix_set_complex(H, -coef, 0, 1, 1);
-    return H;
+    struct Matrix *Rx = init_matrix(2, 2);
+    Rx = matrix_set_complex(Rx, cos(rotation / 2), 0, 0, 0);
+    Rx = matrix_set_complex(Rx, 0, -sin(rotation / 2), 0, 1);
+    Rx = matrix_set_complex(Rx, 0, -sin(rotation / 2), 1, 0);
+    Rx = matrix_set_complex(Rx, cos(rotation / 2), 0, 1, 1);
+    return Rx;
+}
+struct Matrix *get_Ry(double rotation)
+{
+    struct Matrix *Ry = init_matrix(2, 2);
+    Ry = matrix_set_complex(Ry, cos(rotation / 2), 0, 0, 0);
+    Ry = matrix_set_complex(Ry, sin(rotation / 2), 0, 0, 1);
+    Ry = matrix_set_complex(Ry, -sin(rotation / 2), 0, 1, 0);
+    Ry = matrix_set_complex(Ry, cos(rotation / 2), 0, 1, 1);
+    return Ry;
+}
+struct Matrix *get_Rz(double rotation)
+{
+    struct Matrix *Rz = init_matrix(2, 2);
+    Rz = matrix_set_complex(Rz, cos(rotation / 2), -sin(rotation / 2), 0, 0);
+    Rz = matrix_set_complex(Rz, cos(rotation / 2), sin(rotation / 2), 1, 1);
+    return Rz;
 }
 
-struct Matrix *get_X(void)
-{
-    struct Matrix *X = init_matrix(2, 2);
-    X = matrix_set_complex(X, 1, 0, 0, 1);
-    X = matrix_set_complex(X, 1, 0, 1, 0);
-    return X;
-}
-struct Matrix *get_Y(void)
-{
-    struct Matrix *Y = init_matrix(2, 2);
-    Y = matrix_set_complex(Y, 0, -1, 0, 1);
-    Y = matrix_set_complex(Y, 0, 1, 1, 0);
-    return Y;
-}
-struct Matrix *get_Z(void)
-{
-    struct Matrix *Z = init_matrix(2, 2);
-    Z = matrix_set_complex(Z, 1, 0, 0, 0);
-    Z = matrix_set_complex(Z, -1, 0, 1, 1);
-    return Z;
-}
-struct Matrix *get_gate(enum Gates gate)
+struct Matrix *get_gate_matrix(int gate_id, double rotation)
 {
     struct Matrix *m_gate = NULL;
-    switch (gate)
+    switch (gate_id)
     {
-    case H:
-        m_gate = get_H();
+    case RX:
+        m_gate = get_Rx(rotation);
         break;
-    case X:
-        m_gate = get_X();
+    case RY:
+        m_gate = get_Ry(rotation);
         break;
-    case Y:
-        m_gate = get_Y();
-        break;
-    case Z:
-        m_gate = get_Z();
+    case RZ:
+        m_gate = get_Rz(rotation);
         break;
     default:
         break;
     }
     return m_gate;
 }
+
+/*
+struct Matrix *build_unitary_gate(struct Gate *gate)
+{
+    return NULL;
+}
+*/

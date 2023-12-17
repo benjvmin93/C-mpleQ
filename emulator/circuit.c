@@ -11,6 +11,7 @@ struct Circuit *init_circuit(size_t nb_qubits)
     circuit->vector_state = init_matrix(1, pow(2, circuit->nb_qubits));
     circuit->vector_state = matrix_set_complex(circuit->vector_state, 1, 0, 0, 0);
     circuit->gates = init_list(sizeof(struct Gate));
+    return circuit;
 }
 
 void free_circuit(struct Circuit *circuit)
@@ -19,16 +20,16 @@ void free_circuit(struct Circuit *circuit)
     free(circuit);
 }
 
-struct Circuit *circuit_add_gate(struct Circuit *circuit, enum Gates gate, struct List *controls, struct List *targets)
+struct Circuit *circuit_add_gate(struct Circuit *circuit, int gate, double rotation, struct List *controls, struct List *targets)
 {
-    struct Gate *new_gate = init_gate(gate, controls, targets);
+    struct Gate *new_gate = init_gate(gate, rotation, controls, targets);
     circuit->gates = list_append(circuit->gates, new_gate);
     return circuit;
 }
 
 struct Circuit *circuit_measure(struct Circuit *circuit, struct List *targets)
 {
-    struct Gate *new_gate = init_gate(M, init_list(sizeof(0)), targets);
+    struct Gate *new_gate = init_gate(M, 0, init_list(sizeof(0)), targets);
     circuit->gates = list_append(circuit->gates, new_gate);
     return circuit;
 }
