@@ -185,3 +185,13 @@ struct Matrix *matrix_transpose(struct Matrix *m)
     }
     return transposed;
 }
+
+struct Matrix *identity(size_t n)
+{
+    struct Matrix *identity = init_matrix(n, n);
+    for (size_t i = 0; i < n; ++i)
+    {
+        identity = matrix_set_complex(identity, 1, 0, i, i);
+    }
+    return identity;
+}

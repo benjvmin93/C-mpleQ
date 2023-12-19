@@ -20,5 +20,6 @@ bool matrix_equal(struct Matrix *m1, struct Matrix *m2);
 void print_matrix(struct Matrix *matrix);
 struct Matrix *matrix_kron(struct Matrix *m1, struct Matrix *m2);
 struct Matrix *matrix_transpose(struct Matrix *m);
+struct Matrix *identity(size_t n);
 
 #endif
