@@ -91,11 +91,13 @@ struct Matrix *matrix_mul(struct Matrix *m1, struct Matrix *m2)
         {
             for (size_t k = 0; k < *m1->cols; ++k)
             {
-                struct Complex *mul = complex_mul(m1->matrix[i][j], m2->matrix[k][j]);
-                struct Complex *res = complex_add(result->matrix[i][j], mul);
+                struct Complex *mul = complex_mul(m1->matrix[i][k], m2->matrix[k][j]);
+                struct Complex *add = complex_add(result->matrix[i][j], mul);
                 free_complex(mul);
-                free_complex(result->matrix[i][j]);
-                result->matrix[i][j] = res;
+                *result->matrix[i][j]->a = *add->a;
+                *result->matrix[i][j]->b = *add->b;
+                free_complex(add);
+
             }
         }
     }
@@ -103,7 +105,7 @@ struct Matrix *matrix_mul(struct Matrix *m1, struct Matrix *m2)
 
 }
 
-bool matrix_equal(struct Matrix *m1, struct Matrix *m2)
+bool matrix_equal(struct Matrix *m1, struct Matrix *m2, double threshold)
 {
     if (*m1->rows != *m2->rows || *m1->cols != *m2->cols)
     {
@@ -114,7 +116,7 @@ bool matrix_equal(struct Matrix *m1, struct Matrix *m2)
     {
         for (size_t j = 0; j < *m1->cols; ++j)
         {
-            bool equal = complex_equal(m1->matrix[i][j], m2->matrix[i][j], 0);
+            bool equal = complex_equal(m1->matrix[i][j], m2->matrix[i][j], threshold);
             if (!equal)
             {
                 return false;
@@ -122,6 +124,20 @@ bool matrix_equal(struct Matrix *m1, struct Matrix *m2)
         }
     }
     return true;
+}
+
+struct Matrix *matrix_scal_mul(struct Complex *z, struct Matrix *m)
+{
+    for (size_t i = 0; i < *m->rows; ++i)
+    {
+        for (size_t j = 0; j < *m->cols; ++j)
+        {
+            struct Complex *c = complex_mul(z, m->matrix[i][j]);
+            m = matrix_set_complex(m, *c->a, *c->b, j, i);
+            free_complex(c);
+        }
+    }
+    return m;
 }
 
 void print_matrix(struct Matrix *matrix)

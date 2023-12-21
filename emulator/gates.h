@@ -9,6 +9,7 @@ enum Gates
   RX = 0,
   RY,
   RZ,
+  P,
   M
 };
 

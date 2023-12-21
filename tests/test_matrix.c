@@ -25,7 +25,7 @@ bool test_matrix_1(void)
     struct Matrix *expected = init_matrix(cols, rows);
     *expected->matrix[0][0]->a = 2;
 
-    if (!matrix_equal(res, expected))
+    if (!matrix_equal(res, expected, 0))
         return false;
 
     free_matrix(m1);
@@ -50,7 +50,7 @@ bool test_matrix_2(void)
     struct Matrix *res = matrix_add(m1, m2);
     struct Matrix *expected = init_matrix(cols, rows);
     
-    if (!matrix_equal(res, expected))
+    if (!matrix_equal(res, expected, 0))
         return false;
 
     free_matrix(m1);
@@ -87,7 +87,7 @@ bool test_matrix_3(void)
     
     struct Matrix *res = matrix_add(m1, m2);
     
-    if (!matrix_equal(res, expected))
+    if (!matrix_equal(res, expected, 0))
         return false;
     
 
@@ -117,7 +117,7 @@ bool test_matrix_4(void)
     
     struct Matrix *res = matrix_mul(m1, m2);
 
-    bool b = matrix_equal(res, expected);
+    bool b = matrix_equal(res, expected, 0);
     free_matrix(m1);
     free_matrix(m2);
     free_matrix(res);
@@ -145,7 +145,7 @@ bool test_matrix_5(void)
 
     struct Matrix *res = matrix_kron(m1, m2);
 
-    bool b = matrix_equal(res, expected);
+    bool b = matrix_equal(res, expected, 0);
     free_matrix(m1);
     free_matrix(m2);
     free_matrix(res);
@@ -173,7 +173,7 @@ bool test_matrix_6(void)
 
     struct Matrix *res = matrix_kron(m1, m2);
 
-    bool b = matrix_equal(res, expected);
+    bool b = matrix_equal(res, expected, 0);
     free_matrix(m1);
     free_matrix(m2);
     free_matrix(res);
@@ -205,7 +205,7 @@ bool test_matrix_7(void)
 
     struct Matrix *res = matrix_kron(m1, m2);
 
-    bool b = matrix_equal(res, expected);
+    bool b = matrix_equal(res, expected, 0);
     free_matrix(m1);
     free_matrix(m2);
     free_matrix(res);

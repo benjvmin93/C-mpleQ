@@ -62,6 +62,11 @@ struct Complex *complex_div(struct Complex *z1, struct Complex *z2)
     return init_complex(e, f);
 }
 
+double complex_modulus(struct Complex *z)
+{
+    return sqrt(pow(*z->a, 2) + pow(*z->b, 2));
+}
+
 bool complex_equal(struct Complex *z1, struct Complex *z2, double threshold)
 {
     double diff_a = *z1->a - *z2->a;
@@ -89,5 +94,5 @@ bool complex_equal(struct Complex *z1, struct Complex *z2, double threshold)
 void print_complex(struct Complex *z)
 {
     char sign = (*z->b >= 0)? '+' : '-';
-    printf("%f %c %fi", *z->a, sign, *z->b);
+    printf("%f %c %fi", *z->a, sign, (sign == '-') ? -(*z->b) : (*z->b));
 }

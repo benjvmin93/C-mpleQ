@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <math.h>
 
 #include "../utils/maths.h"
+#include "../utils/complex.h"
 #include "../emulator/gates.h"
 
 #define NB_TESTS_GATES 5
@@ -15,7 +17,7 @@ bool test_gate_Rx(void)
     expected = matrix_set_complex(expected, 0, -msin(theta / 2), 1, 0);
     expected = matrix_set_complex(expected, 0, -msin(theta / 2), 0, 1);
 
-    bool res = matrix_equal(Rx->m_gate, expected);
+    bool res = matrix_equal(Rx->m_gate, expected, 0);
 
     free_gate(Rx);
     free_matrix(expected);
@@ -32,7 +34,7 @@ bool test_gate_Ry(void)
     expected = matrix_set_complex(expected, -msin(theta / 2), 0, 1, 0);
     expected = matrix_set_complex(expected, msin(theta / 2), 0, 0, 1);
 
-    bool res = matrix_equal(Ry->m_gate, expected);
+    bool res = matrix_equal(Ry->m_gate, expected, 0);
 
     free_gate(Ry);
     free_matrix(expected);
@@ -47,7 +49,7 @@ bool test_gate_Rz(void)
     expected = matrix_set_complex(expected, mcos(theta / 2), -msin(theta / 2), 0, 0);
     expected = matrix_set_complex(expected, mcos(theta / 2), msin(theta / 2), 1, 1);
 
-    bool res = matrix_equal(Rz->m_gate, expected);
+    bool res = matrix_equal(Rz->m_gate, expected, 0);
 
     free_gate(Rz);
     free_matrix(expected);
@@ -59,15 +61,10 @@ bool test_gate_X(void)
     struct Matrix *X = get_X();
     struct Matrix *expected = init_matrix(2, 2);
     
-    expected = matrix_set_complex(expected, 0, -1, 1, 0);
-    expected = matrix_set_complex(expected, 0, -1, 0, 1);
-    printf("\n");
-    print_matrix(X);
-    printf("\n");
-    print_matrix(expected);
+    expected = matrix_set_complex(expected, 1, 0, 1, 0);
+    expected = matrix_set_complex(expected, 1, 0, 0, 1);
     
-    bool res = matrix_equal(X, expected);
-
+    bool res = matrix_equal(X, expected, 0);
     free_matrix(X);
     free_matrix(expected);
     return res;
@@ -77,14 +74,16 @@ bool test_gate_H(void)
 {
     struct Matrix *H = get_H();
     struct Matrix *expected = init_matrix(2, 2);
-    expected = matrix_set_complex(expected, 0, -1, 1, 0);
-    expected = matrix_set_complex(expected, 0, -1, 0, 1);
-    printf("\n");
-    print_matrix(H);
-    print_matrix(expected);
+    expected = matrix_set_complex(expected, 1, 0, 0, 0);
+    expected = matrix_set_complex(expected, 1, 0, 1, 0);
+    expected = matrix_set_complex(expected, 1, 0, 0, 1);
+    expected = matrix_set_complex(expected, -1, 0, 1, 1);
+    struct Complex *c = init_complex(1 / sqrt(2), 0);
+    expected = matrix_scal_mul(c, expected);
     
-    bool res = matrix_equal(H, expected);
+    bool res = matrix_equal(H, expected, 1e-10);
 
+    free_complex(c);
     free_matrix(H);
     free_matrix(expected);
     return res;
