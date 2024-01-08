@@ -30,5 +30,7 @@ struct Matrix *get_gate_matrix(int gate_id, double rotation);
 struct Matrix *build_unitary_gate(struct Gate *gate, size_t n_qubits);
 struct Matrix *get_H(void);
 struct Matrix *get_X(void);
+struct Matrix *get_Y(void);
+struct Matrix *get_Z(void);
 
 #endif

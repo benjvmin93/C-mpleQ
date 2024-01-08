@@ -134,10 +134,26 @@ struct Matrix *get_X(void)
 {
     struct Matrix *P = get_P(M_PI);
     struct Matrix *Ry = get_Ry(M_PI);
-
     struct Matrix *X = matrix_mul(Ry, P);
     free_matrix(P);
     free_matrix(Ry);
 
     return X;
+}
+
+struct Matrix *get_Z(void)
+{
+    struct Matrix *Z = get_P(M_PI);
+    return Z;
+}
+
+struct Matrix *get_Y(void)
+{
+    struct Matrix *X = get_X();
+    struct Matrix *Z = get_Z();
+    struct Matrix *Y = matrix_mul(Z, X);
+
+    free_matrix(X);
+    free_matrix(Z);
+    return Y;
 }

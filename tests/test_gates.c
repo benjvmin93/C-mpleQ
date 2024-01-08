@@ -5,8 +5,6 @@
 #include "../utils/complex.h"
 #include "../emulator/gates.h"
 
-#define NB_TESTS_GATES 5
-
 bool test_gate_Rx(void)
 {
     double theta = M_PI;
@@ -89,22 +87,56 @@ bool test_gate_H(void)
     return res;
 }
 
+bool test_gate_Y(void)
+{
+    struct Matrix *Y = get_Y();
+    struct Matrix *expected = init_matrix(2, 2);
+    expected = matrix_set_complex(expected, 1, 0, 1, 0);
+    expected = matrix_set_complex(expected, -1, 0, 0, 1);
+    
+    print_matrix(Y);
+    bool res = matrix_equal(Y, expected, 1e-10);
+
+    free_matrix(Y);
+    free_matrix(expected);
+    return res;
+}
+
+bool test_gate_Z(void)
+{
+    struct Matrix *Z = get_Z();
+    struct Matrix *expected = init_matrix(2, 2);
+    expected = matrix_set_complex(expected, 1, 0, 0, 0);
+    expected = matrix_set_complex(expected, -1, 0, 1, 1);
+    
+    bool res = matrix_equal(Z, expected, 1e-10);
+
+    free_matrix(Z);
+    free_matrix(expected);
+    return res;
+}
+
 bool (*gates_test_functions[])(void) = {
     test_gate_Rx,
     test_gate_Ry,
     test_gate_Rz,
     test_gate_X,
-    test_gate_H
+    test_gate_H,
+    test_gate_Y,
+    test_gate_Z,
+    NULL
 };
 
 void run_tests_gates(void)
 {
     printf("========== TESTS GATES ==========\n");
     float success = 0;
-    for (size_t i = 0; i < NB_TESTS_GATES; ++i)
+    bool (*test)(void) = NULL;
+    size_t i = 0;
+    while ((test = (*gates_test_functions[i])))
     {
-        printf("Test %ld: ", i + 1);
-        bool res = (*gates_test_functions[i])();
+        printf("Test %ld: ", i++ + 1);
+        bool res = test();
         success += res == true ? 1 : 0;
         if (res)
             printf("PASSED\n");
@@ -112,5 +144,5 @@ void run_tests_gates(void)
             printf("FAILED\n");
     }
 
-    printf("Gates tests passed = %f%%\n", success / (float)NB_TESTS_GATES * 100);
+    printf("Maths tests passed = %f%%\n", success / (float)i * 100);
 }
