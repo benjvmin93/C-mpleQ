@@ -6,6 +6,18 @@
 #include "../utils/complex.h"
 #include "../utils/alloc.h"
 
+/*
+ * Function: init_gate
+ * ------------------
+ * initialize a gate
+ * 
+ * gate_id: gate enumeration
+ * rotation: rotation value in gradient (optional)
+ * controls: list of control qubits (optional)
+ * targets: list of target qubits
+ * 
+ * returns: the gate structure according to the given arguments
+ */
 struct Gate *init_gate(enum Gates gate_id, double rotation, struct List *controls, struct List *targets)
 {
     struct Gate *gate = xmalloc(sizeof(struct Gate));
@@ -24,9 +36,13 @@ void free_gate(struct Gate *gate)
     free(gate);
 }
 
-
 /*
-* Returns the rotation operator around X axis according to the given rotation.
+* Function: get_Rx
+* ----------------
+* 
+* rotation: rotation in gradient
+*
+* returns: the rotation operator around X axis according to the given rotation
 */
 struct Matrix *get_Rx(double rotation)
 {
@@ -40,7 +56,12 @@ struct Matrix *get_Rx(double rotation)
 }
 
 /*
-* Returns the rotation operator around Y axis according to the given rotation.
+* Function: get_Ry
+* ----------------
+* 
+* rotation: rotation in gradient
+*
+* returns: the rotation operator around Y axis according to the given rotation
 */
 struct Matrix *get_Ry(double rotation)
 {
@@ -53,7 +74,12 @@ struct Matrix *get_Ry(double rotation)
 }
 
 /*
-* Returns the rotation operator around Z axis according to the given rotation.
+* Function: get_Rz
+* ----------------
+* 
+* rotation: rotation in gradient
+*
+* returns: the rotation operator around Z axis according to the given rotation
 */
 struct Matrix *get_Rz(double rotation)
 {
@@ -64,7 +90,12 @@ struct Matrix *get_Rz(double rotation)
 }
 
 /*
-* Returns the phase operator according to the given rotation.
+* Function: get_P
+* ----------------
+* 
+* rotation: rotation in gradient
+*
+* returns: the phase operator according to the given rotation.
 */
 struct Matrix *get_P(double rotation)
 {
@@ -74,6 +105,15 @@ struct Matrix *get_P(double rotation)
     return P;
 }
 
+/*
+* Function: get_gate_matrix
+* ----------------
+* 
+* gate_id: int id corresponding to the gate enumeration
+* rotation: rotation in gradient
+*
+* returns: the matrix corresponding to the id according to the given rotation
+*/
 struct Matrix *get_gate_matrix(int gate_id, double rotation)
 {
     struct Matrix *m_gate = NULL;
@@ -96,6 +136,15 @@ struct Matrix *get_gate_matrix(int gate_id, double rotation)
     return m_gate;
 }
 
+/*
+* Function: build_unitary_gate
+* ----------------
+* 
+* gate: gate structure to turn into unitary gate
+* n_qubits: number of qubits within the circuit
+*
+* returns: the unitary gate corresponding to the given gate within the circuit using the given number of qubits
+*/
 struct Matrix *build_unitary_gate(struct Gate *gate, size_t n_qubits)
 {
     // TODO : controls
@@ -134,8 +183,11 @@ struct Matrix *build_unitary_gate(struct Gate *gate, size_t n_qubits)
 }
 
 /*
-* Returns the Hadamard operator.
-* H = X.Ry(PI/2)
+* Function: get_H
+* ----------------
+* Computes H as H = X.Ry(PI/2)
+*
+* returns: the Hadamard gate.
 */
 struct Matrix *get_H(void)
 {
@@ -148,8 +200,11 @@ struct Matrix *get_H(void)
 }
 
 /*
-* Returns the X operator.
-* X = Ry(PI).P
+* Function: get_X
+* ----------------
+* computes X as X = Ry(PI).P
+*
+* returns: the X gate.
 */
 struct Matrix *get_X(void)
 {
@@ -163,8 +218,11 @@ struct Matrix *get_X(void)
 }
 
 /*
-* Returns the Z operator.
-* Z = Rz(PI).
+* Function: get_Z
+* ----------------
+* computes Z as Z = Rz(PI)
+*
+* returns: the Z gate.
 */
 struct Matrix *get_Z(void)
 {
@@ -173,8 +231,11 @@ struct Matrix *get_Z(void)
 }
 
 /*
-* Returns the Y operator, up to a phase shift.
-* Y = Z.X
+* Function: get_Y
+* ----------------
+* computes Y as Y = Z.X
+*
+* returns: the Y gate, up to a global phase.
 */
 struct Matrix *get_Y(void)
 {
