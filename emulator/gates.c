@@ -24,6 +24,10 @@ void free_gate(struct Gate *gate)
     free(gate);
 }
 
+
+/*
+* Returns the rotation operator around X axis according to the given rotation.
+*/
 struct Matrix *get_Rx(double rotation)
 {
     struct Matrix *Rx = init_matrix(2, 2);
@@ -35,6 +39,9 @@ struct Matrix *get_Rx(double rotation)
     return Rx;
 }
 
+/*
+* Returns the rotation operator around Y axis according to the given rotation.
+*/
 struct Matrix *get_Ry(double rotation)
 {
     struct Matrix *Ry = init_matrix(2, 2);
@@ -45,6 +52,9 @@ struct Matrix *get_Ry(double rotation)
     return Ry;
 }
 
+/*
+* Returns the rotation operator around Z axis according to the given rotation.
+*/
 struct Matrix *get_Rz(double rotation)
 {
     struct Matrix *Rz = init_matrix(2, 2);
@@ -53,6 +63,9 @@ struct Matrix *get_Rz(double rotation)
     return Rz;
 }
 
+/*
+* Returns the phase operator according to the given rotation.
+*/
 struct Matrix *get_P(double rotation)
 {
     struct Matrix *P = init_matrix(2, 2);
@@ -120,6 +133,10 @@ struct Matrix *build_unitary_gate(struct Gate *gate, size_t n_qubits)
     return system_unitary;
 }
 
+/*
+* Returns the Hadamard operator.
+* H = X.Ry(PI/2)
+*/
 struct Matrix *get_H(void)
 {
     struct Matrix *X = get_X();
@@ -130,6 +147,10 @@ struct Matrix *get_H(void)
     return H;
 }
 
+/*
+* Returns the X operator.
+* X = Ry(PI).P
+*/
 struct Matrix *get_X(void)
 {
     struct Matrix *P = get_P(M_PI);
@@ -141,12 +162,20 @@ struct Matrix *get_X(void)
     return X;
 }
 
+/*
+* Returns the Z operator.
+* Z = Rz(PI).
+*/
 struct Matrix *get_Z(void)
 {
     struct Matrix *Z = get_P(M_PI);
     return Z;
 }
 
+/*
+* Returns the Y operator, up to a phase shift.
+* Y = Z.X
+*/
 struct Matrix *get_Y(void)
 {
     struct Matrix *X = get_X();
