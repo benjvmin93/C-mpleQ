@@ -94,7 +94,6 @@ bool test_gate_Y(void)
     expected = matrix_set_complex(expected, 1, 0, 1, 0);
     expected = matrix_set_complex(expected, -1, 0, 0, 1);
     
-    print_matrix(Y);
     bool res = matrix_equal(Y, expected, 1e-10);
 
     free_matrix(Y);

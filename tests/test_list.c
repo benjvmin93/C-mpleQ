@@ -5,7 +5,6 @@
 #include "../utils/alloc.h"
 #include "../utils/list.h"
 
-#define NB_TESTS_LISTS 8
 
 bool int_equal_func(void *a, void *b)
 {
@@ -204,6 +203,47 @@ bool test_list_insert_middle(void)
     return res;
 }
 
+bool test_list_reverse_1(void)
+{
+    int *a = xmalloc(sizeof(int));
+    *a = 100;
+    struct List *l = init_list(sizeof(int));
+    l = list_append(l, a);
+    struct List *reversed = list_reverse(l);
+
+    bool res = list_length(reversed) == 1 && *(int*)list_at(reversed, 0)->data == 100;
+    list_free(l, free_int);
+    list_free(reversed, free_int);
+    return res;                                                            
+}
+
+bool test_list_reverse_2(void)
+{
+    int *a = xmalloc(sizeof(int));
+    int *b = xmalloc(sizeof(int));
+    int *c = xmalloc(sizeof(int));
+    int *d = xmalloc(sizeof(int));
+    *a = 1;
+    *b = 2;
+    *c = 3;
+    *d = 4;
+
+    struct List *l = init_list(sizeof(int));
+    l = list_append(l, a);
+    l = list_append(l, b);
+    l = list_append(l, c);
+    l = list_append(l, d);
+    struct List *reversed = list_reverse(l);
+
+    bool res = list_length(reversed) == 4 &&
+        *(int*)list_at(reversed, 0)->data == 4 && *(int*)list_at(reversed, 1)->data == 3 &&
+        *(int*)list_at(reversed, 2)->data == 2 && *(int*)list_at(reversed, 3)->data == 1;
+    
+    list_free(l, free_int);
+    list_free(reversed, free_int);
+    return res;                                                            
+}
+
 bool (*lists_test_functions[])(void) = {
     test_list_length_1,
     test_list_remove_1,
@@ -212,17 +252,21 @@ bool (*lists_test_functions[])(void) = {
     test_list_insert_beginning,
     test_list_insert_end,
     test_list_insert_multiple,
-    test_list_insert_middle
+    test_list_insert_middle,
+    test_list_reverse_1,
+    test_list_reverse_2,
+    NULL
 };
 
 void run_tests_lists(void)
 {
-    printf("========== TESTS LIST ==========\n");
     float success = 0;
-    for (size_t i = 0; i < NB_TESTS_LISTS; ++i)
+    bool (*test)(void) = NULL;
+    size_t i = 0;
+    while ((test = (*lists_test_functions[i])))
     {
-        printf("Test %ld: ", i + 1);
-        bool res = (*lists_test_functions[i])();
+        printf("Test %ld: ", i++ + 1);
+        bool res = test();
         success += res == true ? 1 : 0;
         if (res)
             printf("PASSED\n");
@@ -230,5 +274,5 @@ void run_tests_lists(void)
             printf("FAILED\n");
     }
 
-    printf("List tests passed = %f%%\n", success / (float)NB_TESTS_LISTS * 100);
+    printf("List tests passed = %f%%\n", success / (float)i * 100);
 }
