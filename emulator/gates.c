@@ -22,18 +22,19 @@ struct Gate *init_gate(enum Gates gate_id, double rotation, struct List *control
 {
     struct Gate *gate = xmalloc(sizeof(struct Gate));
     gate->m_gate = get_gate_matrix(gate_id, rotation);
-
+    gate->id = gate_id;
     gate->controls = controls;
     gate->targets = targets;
     return gate;
 }
 
-void free_gate(struct Gate *gate)
+void free_gate(void *gate)
 {
-    free_matrix(gate->m_gate);
-    list_free(gate->targets, free);
-    list_free(gate->controls, free);
-    free(gate);
+    struct Gate *g = gate;
+    free_matrix(g->m_gate);
+    list_free(g->targets, free);
+    list_free(g->controls, free);
+    free(g);
 }
 
 /*
@@ -106,6 +107,24 @@ struct Matrix *get_P(double rotation)
 }
 
 /*
+* Function: get_M_0
+* ----------------
+*
+* returns: the measurement operator M0 according to the computational basis {0, 1}
+*/
+struct Matrix *get_M_0(void)
+{
+    struct Matrix *ket_0 = init_matrix(1, 2);
+    ket_0 = matrix_set_complex(ket_0, 1, 0, 0, 1);
+    struct Matrix *bra_0 = matrix_transpose(ket_0);
+    struct Matrix *M0 = matrix_kron(ket_0, bra_0);
+
+    free_matrix(ket_0);
+    free_matrix(bra_0);
+    return M0;
+}
+
+/*
 * Function: get_gate_matrix
 * ----------------
 * 
@@ -130,6 +149,22 @@ struct Matrix *get_gate_matrix(int gate_id, double rotation)
         break;
     case P:
         m_gate = get_P(rotation);
+        break;
+    case M0:
+        m_gate = get_M_0();
+        break;
+    case H:
+        m_gate = get_H();
+        break;
+    case X:
+        m_gate = get_X();
+        break;
+    case Y:
+        m_gate = get_Y();
+        break;
+    case Z:
+        m_gate = get_Z();
+        break;
     default:
         break;
     }
@@ -148,23 +183,23 @@ struct Matrix *get_gate_matrix(int gate_id, double rotation)
 struct Matrix *build_unitary_gate(struct Gate *gate, size_t n_qubits)
 {
     // TODO : controls
-    struct Matrix *id = identity(2);
-    struct Matrix *system_unitary = identity(pow(2, n_qubits));
+    struct Matrix *id = identity(2); // Initialize identity
+    struct Matrix *gate_unitary = identity(pow(2, n_qubits)); // Initialize the gate unitary matrix
     size_t n_target = list_length(gate->targets);
-    for (size_t target_i = 0; target_i < n_target; ++target_i)
-    {
-        size_t target = *(size_t*)list_at(gate->targets, target_i)->data;
-        struct Matrix *unitary = NULL;
-        struct Matrix *old = init_matrix(1, 1);
-        old = matrix_set_complex(old, 1, 0, 0, 0);
-
-        for (size_t i = 0; i < n_qubits; ++i)
+    for (size_t target_i = 0; target_i < n_target; ++target_i) // Iterate through each target qubit
+    {   
+        struct List *target_list = list_at(gate->targets, target_i);
+        size_t *target = (size_t*)target_list->data; // Get target qubit index
+        struct Matrix *unitary = init_matrix(1, 1); // Initialize unitary gate
+        unitary = matrix_set_complex(unitary, 1, 0, 0, 0);
+        struct Matrix *old = unitary;
+        for (size_t i = 0; i < n_qubits; ++i) // Iterate through each qubit to build unitary matrix
         {
-            if (i < target)
+            if (i < *target)
             {
                 unitary = matrix_kron(old, id);
             }
-            else if (i == target)
+            else if (i == *target)
             {
                 unitary = matrix_kron(old, gate->m_gate);
             }
@@ -175,11 +210,14 @@ struct Matrix *build_unitary_gate(struct Gate *gate, size_t n_qubits)
             free_matrix(old);
             old = unitary;
         }
+        struct Matrix *old_gate_unitary = gate_unitary;
+        gate_unitary = matrix_mul(old, old_gate_unitary);
         free_matrix(old);
-        system_unitary = matrix_mul(unitary, system_unitary);
+        free_matrix(old_gate_unitary);
+        old_gate_unitary = gate_unitary;
     }
     free_matrix(id);
-    return system_unitary;
+    return gate_unitary;
 }
 
 /*

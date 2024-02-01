@@ -25,8 +25,9 @@ struct Matrix *init_matrix(size_t cols, size_t rows)
     return matrix;
 }
 
-void free_matrix(struct Matrix *matrix)
+void free_matrix(void *m)
 {
+    struct Matrix *matrix = m;
     for (size_t i = 0; i < *matrix->rows; ++i)
     {
         for (size_t j = 0; j < *matrix->cols; ++j)
@@ -44,6 +45,7 @@ void free_matrix(struct Matrix *matrix)
     free(matrix->rows);
     free(matrix->matrix);
     free(matrix);
+    m = NULL;
 }
 
 struct Matrix *matrix_set_complex(struct Matrix *m, double a, double b, size_t col, size_t row)
@@ -175,16 +177,12 @@ struct Matrix *matrix_kron(struct Matrix *m1, struct Matrix *m2) {
         for (size_t j = 0; j < *(m1->cols); j++) {
             for (size_t p = 0; p < *(m2->rows); p++) {
                 for (size_t q = 0; q < *(m2->cols); q++) {
-                    *(result->matrix[i * *(m2->rows) + p][j * *(m2->cols) + q]->a) =
-                        *(m1->matrix[i][j]->a) * *(m2->matrix[p][q]->a) - *(m1->matrix[i][j]->b) * *(m2->matrix[p][q]->b);
-
-                    *(result->matrix[i * *(m2->rows) + p][j * *(m2->cols) + q]->b) =
-                        *(m1->matrix[i][j]->a) * *(m2->matrix[p][q]->b) + *(m1->matrix[i][j]->b) * *(m2->matrix[p][q]->a);
+                    free_complex(result->matrix[i * *(m2->rows) + p][j * *(m2->cols) + q]);
+                    result->matrix[i * *(m2->rows) + p][j * *(m2->cols) + q] = complex_mul(m1->matrix[i][j], m2->matrix[p][q]);
                 }
             }
         }
     }
-
     return result;
 }
 
@@ -210,4 +208,18 @@ struct Matrix *identity(size_t n)
         identity = matrix_set_complex(identity, 1, 0, i, i);
     }
     return identity;
+}
+
+struct Matrix *matrix_transconj(struct Matrix *m)
+{
+    m = matrix_transpose(m);
+    for (size_t i = 0; i < *m->rows; ++i)
+    {
+        for (size_t j = 0; j < *m->cols; ++j)
+        {
+            struct Complex *z = m->matrix[i][j];
+            *z->b *= -1;
+        }
+    }
+    return m;
 }

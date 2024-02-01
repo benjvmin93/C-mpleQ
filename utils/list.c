@@ -74,6 +74,20 @@ size_t list_length(struct List *l)
     return length;
 }
 
+struct List *list_reverse(struct List *l)
+{
+    size_t len = list_length(l);
+    struct List *reversed = init_list(l->data_size);
+    for (int i = len - 1; i >= 0; i--)
+    {
+        size_t index = i;
+        struct List *elt = list_at(l, index);
+        reversed = list_append(reversed, elt->data);
+        elt->data = NULL;
+    }
+    return reversed;
+}
+
 void list_print(struct List *l, void (*print_fun)(void *))
 {
     if (!l)
@@ -166,7 +180,10 @@ void list_free(struct List *l, void (*free_fun)(void *))
     while (l)
     {
         struct List *tmp = l;
-        free_fun(l->data);
+        if (l->data)
+        {
+            free_fun(l->data);
+        }
         l = l->next;
         free(tmp);
     }
@@ -174,6 +191,12 @@ void list_free(struct List *l, void (*free_fun)(void *))
 
 struct List *list_append(struct List *l, void *data)
 {
+    if (list_length(l) == 1 && l->data == NULL)
+    {
+        l->data = data;
+        return l;
+    }
+
     struct List *new = init_list(l->data_size);
     new->data = data;
     struct List *head = l;
@@ -182,5 +205,7 @@ struct List *list_append(struct List *l, void *data)
         l = l->next;
     }
     l->next = new;
+    new->next = NULL;
     return head;
+
 }

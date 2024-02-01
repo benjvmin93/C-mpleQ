@@ -12,7 +12,7 @@ struct Matrix
 };
 
 struct Matrix *init_matrix(size_t cols, size_t rows);
-void free_matrix(struct Matrix *matrix);
+void free_matrix(void *m);
 struct Matrix *matrix_set_complex(struct Matrix *m, double a, double b, size_t col, size_t row);
 struct Matrix *matrix_add(struct Matrix *m1, struct Matrix *m2);
 struct Matrix *matrix_mul(struct Matrix *m1, struct Matrix *m2);
@@ -21,6 +21,7 @@ bool matrix_equal(struct Matrix *m1, struct Matrix *m2, double threshold);
 void print_matrix(struct Matrix *matrix);
 struct Matrix *matrix_kron(struct Matrix *m1, struct Matrix *m2);
 struct Matrix *matrix_transpose(struct Matrix *m);
+struct Matrix *matrix_transconj(struct Matrix *m);
 struct Matrix *identity(size_t n);
 
 #endif

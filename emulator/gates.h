@@ -9,19 +9,24 @@ enum Gates
   RX = 0,
   RY,
   RZ,
+  H,
+  X,
+  Y,
+  Z,
   P,
-  M
+  M0
 };
 
 struct Gate
 {
+    enum Gates id;
     struct Matrix *m_gate;
     struct List *controls;
     struct List *targets;
 };
 
 struct Gate *init_gate(enum Gates gate_id, double rotation, struct List *controls, struct List *targets);
-void free_gate(struct Gate *gate);
+void free_gate(void *gate);
 
 struct Matrix *get_Rx(double rotation);
 struct Matrix *get_Ry(double rotation);
@@ -32,5 +37,6 @@ struct Matrix *get_H(void);
 struct Matrix *get_X(void);
 struct Matrix *get_Y(void);
 struct Matrix *get_Z(void);
+struct Matrix *get_M_0(void);
 
 #endif

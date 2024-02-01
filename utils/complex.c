@@ -93,6 +93,16 @@ bool complex_equal(struct Complex *z1, struct Complex *z2, double threshold)
 
 void print_complex(struct Complex *z)
 {
+    if (*z->b == 0)
+    {
+        printf("%f", *z->a);
+        return;
+    }
+    if (*z->a == 0)
+    {
+        printf("%fi", *z->b);
+        return;
+    }
     char sign = (*z->b >= 0)? '+' : '-';
-    printf("%f %c %fi", *z->a, sign, (sign == '-') ? -(*z->b) : (*z->b));
+    printf("%f%c%fi", *z->a, sign, (sign == '-') ? -(*z->b) : (*z->b));
 }
