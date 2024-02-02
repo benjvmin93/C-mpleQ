@@ -4,6 +4,15 @@
 #include "alloc.h"
 #include "list.h"
 
+/*
+ * Function: init_list
+ * ------------------
+ * initialize a new empty list
+ * 
+ * data_size: size of the data in the list
+ * 
+ * returns: the list structure
+ */
 struct List *init_list(size_t data_size)
 {
     struct List *l = xmalloc(sizeof(struct List));
@@ -13,6 +22,40 @@ struct List *init_list(size_t data_size)
     return l;
 }
 
+/*
+ * Function: size_array_to_list
+ * ------------------
+ * initialize a new list of size_t with the given array
+ * 
+ * array: array of size_t
+ * length: length of the array
+ * 
+ * returns: the list structure according to the given array
+ */
+struct List *size_array_to_list(size_t *array, size_t length)
+{
+    struct List *list = init_list(sizeof(size_t));
+    for (size_t i = 0; i < length; ++i)
+    {
+        size_t *data = xmalloc(sizeof(size_t));
+        *data = array[i];
+        list = list_append(list, data);
+    }
+
+    return list;
+}
+
+/*
+ * Function: list_at
+ * ------------------
+ * get the list structure at a specific position.
+ * calling list_at(l, i) is equivalent to write l[i]
+ * 
+ * l: list
+ * index: position to get
+ * 
+ * returns: the list structure at the specific position index
+ */
 struct List *list_at(struct List *l, size_t index)
 {
     size_t length = list_length(l);

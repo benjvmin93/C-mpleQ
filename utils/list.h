@@ -12,6 +12,7 @@ struct List
 };
 
 struct List *init_list(size_t data_size);
+struct List *size_array_to_list(size_t *array, size_t length);
 struct List *list_insert(struct List *l, void *data, size_t index);
 struct List *list_at(struct List *l, size_t index);
 size_t list_length(struct List *l);

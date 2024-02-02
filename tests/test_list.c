@@ -244,6 +244,20 @@ bool test_list_reverse_2(void)
     return res;                                                            
 }
 
+bool test_list_from_array(void)
+{
+    size_t array[] = { 0, 1, 2 };
+    struct List *list = size_array_to_list(array, 3);
+
+    bool b = *(size_t *)list_at(list, 0)->data == 0;
+    b = *(size_t *)list_at(list, 1)->data == 1;
+    b = *(size_t *)list_at(list, 2)->data == 2;
+
+    list_free(list, free);
+
+    return b;
+}
+
 bool (*lists_test_functions[])(void) = {
     test_list_length_1,
     test_list_remove_1,
@@ -255,11 +269,13 @@ bool (*lists_test_functions[])(void) = {
     test_list_insert_middle,
     test_list_reverse_1,
     test_list_reverse_2,
+    test_list_from_array,
     NULL
 };
 
 void run_tests_lists(void)
 {
+    printf("========== TESTS LIST ==========\n");
     float success = 0;
     bool (*test)(void) = NULL;
     size_t i = 0;
