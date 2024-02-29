@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "gates.h"
 #include "../utils/maths.h"
@@ -18,13 +19,22 @@
  * 
  * returns: the gate structure according to the given arguments
  */
-struct Gate *init_gate(enum Gates gate_id, double rotation, struct List *controls, struct List *targets)
+struct Gate *init_gate(enum Gates gate_id, double rotation, struct List *controls, size_t target)
 {
     struct Gate *gate = xmalloc(sizeof(struct Gate));
-    gate->m_gate = get_gate_matrix(gate_id, rotation);
+    gate->target = target;
+    gate->name = get_gate_name(gate_id);
     gate->id = gate_id;
     gate->controls = controls;
-    gate->targets = targets;
+    if (controls)
+    {
+        gate->m_gate = get_control_U(gate_id, rotation, controls, target);
+    }
+    else
+    {
+        gate->m_gate = get_gate_matrix(gate_id, rotation);
+    }
+    
     return gate;
 }
 
@@ -32,8 +42,8 @@ void free_gate(void *gate)
 {
     struct Gate *g = gate;
     free_matrix(g->m_gate);
-    list_free(g->targets, free);
     list_free(g->controls, free);
+    free(g->name);
     free(g);
 }
 
@@ -106,6 +116,90 @@ struct Matrix *get_P(double rotation)
     return P;
 }
 
+bool indices_equal_function(void *a, void *b)
+{
+    size_t *a1 = a;
+    size_t *b1 = b;
+
+    return *a1 == *b1;
+}
+
+struct Matrix *get_control_U(enum Gates gate_id, double rotation, struct List *controls, size_t target)
+{
+    // Prepare |0><0| and |1><1| projectors
+    struct Matrix *ket_0 = init_matrix(1, 2);
+    ket_0 = matrix_set_complex(ket_0, 1, 0, 0, 0);
+    struct Matrix *bra_0 = matrix_transpose(ket_0);
+    struct Matrix *ket_1 = init_matrix(1, 2);
+    ket_1 = matrix_set_complex(ket_1, 1, 0, 0, 1);
+    struct Matrix *bra_1 = matrix_transpose(ket_1);
+    struct Matrix *proj_ket_0 = matrix_mul(ket_0, bra_0);
+    struct Matrix *proj_ket_1 = matrix_mul(ket_1, bra_1);
+    free_matrix(ket_0);
+    free_matrix(ket_1);
+    free_matrix(bra_0);
+    free_matrix(bra_1);
+
+    // Sort control indices in ascendant order
+    controls = mergeSort(controls);
+
+
+    struct Matrix *id = identity(2);
+    size_t *min_ctrl = controls->data;
+    size_t *max_ctrl = list_at(controls, list_length(controls) - 1)->data;
+    size_t min = target < *min_ctrl ? target : *min_ctrl;
+    size_t max = target > *max_ctrl ? target : *max_ctrl;
+
+    // Tensor product for the case when control == |0>
+    struct Matrix *control_proj_0 = identity(1);
+    struct Matrix *old_ctrl_proj = control_proj_0;
+    for (size_t i = min; i <= max; ++i)
+    {
+        if (list_find(controls, &i, indices_equal_function) == NULL)
+        {
+            control_proj_0 = matrix_kron(old_ctrl_proj, id);
+        }
+        else
+        {
+            control_proj_0 = matrix_kron(old_ctrl_proj, proj_ket_0);
+            free_matrix(proj_ket_0);
+        }
+        free_matrix(old_ctrl_proj);
+        old_ctrl_proj = control_proj_0;
+    }
+
+    // Tensor product for the case when control == |1>
+    struct Matrix *control_proj_1 = identity(1);
+    old_ctrl_proj = control_proj_1;
+    for (size_t i = min; i <= max; ++i)
+    {
+        if (i == target)
+        {
+            struct Matrix *gate = get_gate_matrix(gate_id, rotation);
+            control_proj_1 = matrix_kron(old_ctrl_proj, gate);
+            free_matrix(gate);
+        }
+        else if (list_find(controls, &i, indices_equal_function) == NULL)
+        {
+            control_proj_1 = matrix_kron(old_ctrl_proj, id);
+            
+        }
+        else
+        {
+            control_proj_1 = matrix_kron(old_ctrl_proj, proj_ket_1);
+            free_matrix(proj_ket_1);
+        }
+        free_matrix(old_ctrl_proj);
+        old_ctrl_proj = control_proj_1;
+    }
+    struct Matrix *control_gate = matrix_add(control_proj_0, control_proj_1);
+    free_matrix(id);
+    
+    free_matrix(control_proj_0);
+    free_matrix(control_proj_1);
+    return control_gate;
+}
+
 /*
 * Function: get_M_0
 * ----------------
@@ -172,6 +266,67 @@ struct Matrix *get_gate_matrix(int gate_id, double rotation)
 }
 
 /*
+* Function: get_gate_name
+* ----------------
+* 
+* gate_id: int id corresponding to the gate enumeration
+*
+* returns: the string corresponding to the name of the gate according to its id 
+*/
+char *get_gate_name(int gate_id)
+{
+    char *gate_name = NULL;
+    char *name = "";
+    size_t size = 0;
+    switch (gate_id)
+    {
+    case RX:
+        size = 2;
+        name = "RX";
+        break;
+    case RY:
+        size = 2;
+        name = "RX";
+        break;
+    case RZ:
+        size = 2;
+        name = "RX";
+        break;
+    case P:
+        size = 1;
+        name = "P";
+        break;
+    case H:
+        size = 1;
+        name = "H";
+        break;
+    case X:
+        size = 1;
+        name = "X";
+        break;
+    case  Y:
+        size = 1;
+        name = "Y";
+        break;
+    case Z:
+        size = 1;
+        name = "Z";
+        break;
+    default:
+        break;
+    }
+
+    gate_name = xmalloc(sizeof(char) * (size + 1));
+    gate_name = strcpy(gate_name, name);
+    return gate_name;
+}
+
+bool size_equal_func(size_t *a, size_t *b)
+{
+    return *a == *b;
+}
+
+/*
 * Function: build_unitary_gate
 * ----------------
 * 
@@ -182,40 +337,49 @@ struct Matrix *get_gate_matrix(int gate_id, double rotation)
 */
 struct Matrix *build_unitary_gate(struct Gate *gate, size_t n_qubits)
 {
-    // TODO : controls
     struct Matrix *id = identity(2); // Initialize identity
     struct Matrix *gate_unitary = identity(pow(2, n_qubits)); // Initialize the gate unitary matrix
-    size_t n_target = list_length(gate->targets);
-    for (size_t target_i = 0; target_i < n_target; ++target_i) // Iterate through each target qubit
-    {   
-        struct List *target_list = list_at(gate->targets, target_i);
-        size_t *target = (size_t*)target_list->data; // Get target qubit index
-        struct Matrix *unitary = init_matrix(1, 1); // Initialize unitary gate
-        unitary = matrix_set_complex(unitary, 1, 0, 0, 0);
-        struct Matrix *old = unitary;
-        for (size_t i = 0; i < n_qubits; ++i) // Iterate through each qubit to build unitary matrix
-        {
-            if (i < *target)
-            {
-                unitary = matrix_kron(old, id);
-            }
-            else if (i == *target)
-            {
-                unitary = matrix_kron(old, gate->m_gate);
-            }
-            else
-            {
-                unitary = matrix_kron(id, old);
-            }
-            free_matrix(old);
-            old = unitary;
-        }
-        struct Matrix *old_gate_unitary = gate_unitary;
-        gate_unitary = matrix_mul(old, old_gate_unitary);
-        free_matrix(old);
-        free_matrix(old_gate_unitary);
-        old_gate_unitary = gate_unitary;
+    size_t target = gate->target;
+    struct Matrix *unitary = init_matrix(1, 1); // Initialize unitary gate
+    unitary = matrix_set_complex(unitary, 1, 0, 0, 0);
+    struct Matrix *old = unitary;
+    size_t *min_ctrl_gate = NULL;
+    size_t *max_ctrl_gate = NULL;
+    size_t min = target;
+    size_t max = target;
+
+    if (gate->controls)
+    {
+        struct List *ordered_controls = mergeSort(gate->controls);
+        min_ctrl_gate = list_at(ordered_controls, 0)->data;
+        max_ctrl_gate = list_at(ordered_controls, list_length(ordered_controls) - 1)->data;
+        min = gate->target < *min_ctrl_gate ? gate->target : *min_ctrl_gate;
+        max = gate->target > *max_ctrl_gate ? gate->target : *max_ctrl_gate;
     }
+    
+    for (size_t i = 0; i < n_qubits; ++i) // Iterate through each qubit to build unitary matrix
+    {
+        if (i < target && i < min)
+        {
+            unitary = matrix_kron(id, old);
+        }
+        else if (i == min)
+        {
+            unitary = matrix_kron(old, gate->m_gate);
+            i = max;
+        }
+        else
+        {
+            unitary = matrix_kron(old, id);
+        }
+        free_matrix(old);
+        old = unitary;
+    }
+    struct Matrix *old_gate_unitary = gate_unitary;
+    gate_unitary = matrix_mul(old, old_gate_unitary);
+    free_matrix(old);
+    free_matrix(old_gate_unitary);
+    old_gate_unitary = gate_unitary;
     free_matrix(id);
     return gate_unitary;
 }

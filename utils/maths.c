@@ -1,4 +1,10 @@
+#define _POSIX_C_SOURCE 199309L
+
 #include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <err.h>
+#include <errno.h>
 
 #include "maths.h"
 
@@ -26,7 +32,7 @@ double mcos(double theta)
     else if (theta == 0.5 * M_PI || theta == 1.5 * M_PI)
     {
         return 0.0;
-    }
+    } 
 
     return cos(theta);
 }
@@ -59,4 +65,24 @@ double msin(double theta)
     }
 
     return sin(theta);
+}
+
+/*
+ * Function:  bernoulli
+ * --------------------
+ * Performs a bernoulli trial with probability of success (getting 1) p.
+ * 
+ * p: probability of success
+ * 
+ *  returns: either 0 or 1 according to probability p of getting 1 (success)
+*/
+int bernoulli(double p)
+{    
+    int rand_num = rand();
+    float rand_float = (float)rand_num / RAND_MAX;
+    if (rand_float < p) {
+        return 1;
+    } else {
+        return 0;
+    }
 }

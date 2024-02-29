@@ -16,5 +16,6 @@ struct Circuit *init_circuit(size_t nb_qubits);
 void free_circuit(struct Circuit *circuit);
 struct Circuit *circuit_add_gate(struct Circuit *circuit, int gate, double rotation, struct List *controls, struct List *targets);
 struct Circuit *circuit_measure(struct Circuit *circuit, struct List *targets);
+void print_circuit(struct Circuit *circuit);
 
 #endif

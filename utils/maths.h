@@ -7,5 +7,6 @@
 
 double mcos(double theta);
 double msin(double theta);
+int bernoulli(double p);
 
 #endif

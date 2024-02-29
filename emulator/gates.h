@@ -22,16 +22,18 @@ struct Gate
     enum Gates id;
     struct Matrix *m_gate;
     struct List *controls;
-    struct List *targets;
+    size_t target;
+    char *name;
 };
 
-struct Gate *init_gate(enum Gates gate_id, double rotation, struct List *controls, struct List *targets);
+struct Gate *init_gate(enum Gates gate_id, double rotation, struct List *controls, size_t targets);
 void free_gate(void *gate);
-
+struct Matrix *get_control_U(enum Gates gate_id, double rotation, struct List *controls, size_t target);
 struct Matrix *get_Rx(double rotation);
 struct Matrix *get_Ry(double rotation);
 struct Matrix *get_Rz(double rotation);
 struct Matrix *get_gate_matrix(int gate_id, double rotation);
+char *get_gate_name(int gate_id);
 struct Matrix *build_unitary_gate(struct Gate *gate, size_t n_qubits);
 struct Matrix *get_H(void);
 struct Matrix *get_X(void);

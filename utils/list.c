@@ -28,7 +28,6 @@ struct List *init_list(size_t data_size)
  * initialize a new list of size_t with the given array
  * 
  * array: array of size_t
- * length: length of the array
  * 
  * returns: the list structure according to the given array
  */
@@ -250,5 +249,89 @@ struct List *list_append(struct List *l, void *data)
     l->next = new;
     new->next = NULL;
     return head;
+}
 
+struct List *size_list_merge(struct List *l1, struct List *l2)
+{
+    if (l1 == NULL)
+    {
+        return l2;
+    }
+    if (l2 == NULL)
+    {
+        return l1;
+    }
+
+    struct List *res = NULL;
+    size_t *s1 = l1->data;
+    size_t *s2 = l2->data;
+    if (*s1 <= *s2)
+    {
+        res = l1;
+        res->next = size_list_merge(l1->next, l2);
+    }
+    else
+    {
+        res = l2;
+        res->next = size_list_merge(l1, l2->next);
+    }
+    return res;
+}
+
+struct List *mergeSort(struct List *head)
+{
+    if (head == NULL || head->next == NULL)
+    {
+        return head;
+    }
+
+    struct List *slow = head;
+    struct List *fast = head->next;
+
+    while (fast != NULL && fast->next != NULL)
+    {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+
+    struct List *secondHalf = slow->next;
+    slow->next = NULL;
+
+    return size_list_merge(mergeSort(head), mergeSort(secondHalf));
+}
+
+bool size_list_contains(struct List *l, size_t a)
+{
+    if (l == NULL)
+    {
+        return false;
+    }
+
+    struct List *tmp = l;
+    while (tmp)
+    {
+        size_t *d = tmp->data;
+        if (*d == a)
+        {
+            return true;
+        }
+        tmp = tmp->next;
+    }
+    return false;
+}
+
+void size_list_print(struct List *l)
+{
+    if (l == NULL)
+    {
+        return;
+    }
+    struct List *tmp = l;
+    while (tmp)
+    {
+        size_t *d = tmp->data;
+        printf("%ld ", *d);
+        tmp = tmp->next;
+    }
+    printf("\n");
 }
