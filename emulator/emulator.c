@@ -35,15 +35,28 @@ void free_results(struct List *results)
     list_free(results, free_result);
 }
 
+void print_int(void *data)
+{
+    int *x = data;
+    printf("%d", *x);
+}
+
 void print_results(struct List *results)
 {
+    struct List *measured_bits = init_list(sizeof(int));
     struct List *tmp = results;
     while (tmp)
     {
         struct Result *res_i = tmp->data;
+        int *bit = xmalloc(sizeof(int));
+        *bit = res_i->bit;
+        measured_bits = list_append(measured_bits, bit);
         printf("{\n\t0: %f\n\t1: %f\n\tbit: %d\n\ti: %ld\n}\n", res_i->p0, res_i->p1, res_i->bit, res_i->measure_index);
         tmp = tmp->next;
     }
+    printf("Measured state: ");
+    list_print(measured_bits, print_int);
+    list_free(measured_bits, free);
 }
 
 /*

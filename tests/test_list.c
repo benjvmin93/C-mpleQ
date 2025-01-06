@@ -11,11 +11,6 @@ bool int_equal_func(void *a, void *b)
     return *(int*)a == *(int*)b;
 }
 
-void print_int(void *a)
-{
-    printf("%d ", *(int*)a);
-}
-
 void free_int(void *a)
 {
     free(a);
